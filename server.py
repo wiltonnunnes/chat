@@ -1,23 +1,20 @@
 import socket
-import threading
+import thread
 
-def client_thread(conn):
-	
+def client_thread(con):
+	while(True):
+		data = con.recv(4096)
+		con.sendall(data)
+	con.close()	
 
 s = socket.socket()
 host = ''
 port = 12345
 users = {}
-
 s.bind((host, port))
-
 s.listen(5)
-clients = []
 
 while True:
-	c, addr = s.accept()
-	print('Got connection from', addr)
-	msg = s.recv(1024)
-	print('Mensagem do cliente : ', msg)
-	c.send(msg)
-	c.close()
+	con, addr = s.accept()
+	thread.start_new_thread(client_thread, con)
+s.close()
