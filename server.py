@@ -1,20 +1,28 @@
 import socket
-import thread
+import _thread
+
+def broadcast_data(socket, data):
+	for client in clients:
+		if client is socket:
+			client.sendall(data)
 
 def client_thread(con):
 	while(True):
 		data = con.recv(4096)
-		con.sendall(data)
+		print(data.decode())
+		broadcast_data(con, data)
 	con.close()	
 
 s = socket.socket()
 host = ''
 port = 12345
-users = {}
+clients = []
 s.bind((host, port))
 s.listen(5)
 
 while True:
 	con, addr = s.accept()
-	thread.start_new_thread(client_thread, con)
+	print(addr)
+	clients.append(con)
+	_thread.start_new_thread(client_thread, (con,))
 s.close()
