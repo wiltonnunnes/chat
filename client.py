@@ -1,14 +1,16 @@
 import socket
+import select
 
 s = socket.socket()
-host = socket.gethostname()
+host = 'localhost'
 port = 12345
-
 s.connect((host, port))
-try:
-	msg = input()
-	s.send(msg.encode())
-	print(s.recv(1024))
-	s.close()
-except ConnectionAbortedError as e:
-	print('Ocorreu uma exceção: ', e)
+
+while True:
+	inp, out, exc = select.select([s], [s], [s], 0)
+	if inp:
+		print(s.recv(4096))
+	if out:
+		data = input()
+		s.sendall(data.encode())
+s.close()
