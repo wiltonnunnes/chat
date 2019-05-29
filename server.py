@@ -3,7 +3,7 @@ import _thread
 
 def broadcast_data(socket, data):
 	for client in clients:
-		if client is socket:
+		if client is not socket:
 			client.sendall(data)
 
 def client_thread(con):
