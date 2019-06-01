@@ -1,28 +1,33 @@
 import socket
 import _thread
 
-def broadcast_data(socket, data):
-	for client in clients:
-		if client is not socket:
-			client.sendall(data)
+class Server:
 
-def client_thread(con):
-	while(True):
-		data = con.recv(4096)
-		print(data.decode())
-		broadcast_data(con, data)
-	con.close()	
+	def __init__(self, host='localhost', port=12345):
+		self.server_socket = socket.socket()
+		self.server_socket.bind((host, port))
+		self.clients = []
 
-s = socket.socket()
-host = ''
-port = 12345
-clients = []
-s.bind((host, port))
-s.listen(5)
+	def broadcast_data(socket, data):
+		for client in self.clients:
+			if client is not socket:
+				client.sendall(data)
 
-while True:
-	con, addr = s.accept()
-	print(addr)
-	clients.append(con)
-	_thread.start_new_thread(client_thread, (con,))
-s.close()
+	def client_thread(self, con):
+		while(True):
+			data = con.recv(4096)
+			print(data.decode())
+			broadcast_data(con, data)
+		con.close()
+
+	def run(self):
+		while True:
+			con, addr = self.server_socket.accept()
+			_thread.start_new_thread(self.client_thread, (con,))
+
+def main():
+	server = Server()
+	server.run()
+
+if __name__ == "__main__":
+	main()
